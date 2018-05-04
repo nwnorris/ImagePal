@@ -2,23 +2,25 @@ import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.paint.Color;
 
-import java.util.ArrayList;
+import java.awt.geom.Point2D;
+import java.util.*;
 import java.util.stream.Stream;
 
-public class SequentialPalette implements Palette {
+public class HashPalette implements Palette {
 
     private int dupe;
     private double width;
     private double height;
 
-    private ArrayList<PaletteColor> contents;
+    private HashMap<Color, PaletteColor> contents;
     private Image image;
 
-    public SequentialPalette(Image i){
+    public HashPalette(Image i){
         image = i;
-        width = i.getWidth();
-        height = i.getHeight();
-        contents = new ArrayList<>();
+        contents = new HashMap<>();
+        width = image.getWidth();
+        height = image.getHeight();
+        findColors();
     }
 
     public void findColors(){
@@ -32,7 +34,7 @@ public class SequentialPalette implements Palette {
             for(int i = 0; i < h;i++){
                 System.out.println(i);
                 for(int j = 0; j < w; j++){
-                        addColor(pixelReader.getColor(j,i));
+                    addColor(pixelReader.getColor(j,i));
                 }
             }
             System.out.println(dupe + " duplicates found.");
@@ -42,10 +44,11 @@ public class SequentialPalette implements Palette {
     }
 
     public ArrayList<PaletteColor> getColors(){
-        return contents;
+        Collection<PaletteColor> colors = contents.values();
+        return new ArrayList<PaletteColor>(colors);
     }
 
-    public void consolidate(){
+    public void sort(){
 
     }
 
@@ -57,22 +60,29 @@ public class SequentialPalette implements Palette {
         return image;
     }
 
+    public HashMap<Color, PaletteColor> getContents() {
+        return contents;
+    }
+
     private void addColor(Color c){
         if(!hasColor(c)){
-            contents.add(new PaletteColor(c));
+            contents.put(c, new PaletteColor(c));
         } else {
+            contents.get(c).count++;
             dupe++;
         }
     }
 
     public boolean hasColor(Color c){
-        for(PaletteColor x : contents){
-            if(x.color.equals(c)){
-                x.count++;
-                return true;
-            }
+        double margin = 10/255;
+        Color marginUp = new Color(c.getRed() +  margin, c.getGreen() + margin, c.getBlue() + margin, 1);
+        Color marginDown = new Color(c.getRed() - margin, c.getGreen() - margin, c.getBlue() - margin, 1);
+
+        if(contents.get(marginUp) == null && contents.get(marginDown) == null && contents.get(c) == null ){
+            return false;
         }
-        return false;
+
+        return true;
     }
 
     public void setImage(Image i){

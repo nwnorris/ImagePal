@@ -4,15 +4,24 @@ import java.util.Comparator;
 
 public class PaletteComparatorA implements Comparator<Color>{
     public int compare(Color c1, Color c2){
-        double c1Sum = c1.getBlue() + c1.getGreen() + c1.getRed();
-        double c2Sum = c2.getBlue() + c2.getGreen() + c2.getRed();
-
-        if(c1Sum > c2Sum){
+        if(c1.getBlue() > c2.getBlue()){
             return 1;
-        } else if(c1Sum == c2Sum){
-            return 0;
-        } else{
+        } else if(c1.getBlue() < c2.getBlue()){
             return -1;
+        } else {
+            if(c1.getRed() > c2.getRed()){
+                return 1;
+            } else if(c1.getRed() < c2.getRed()){
+                return -1;
+            } else {
+                if(c1.getGreen() > c2.getGreen()){
+                    return 1;
+                } else if(c1.getGreen() < c2.getGreen()){
+                    return -1;
+                }
+            }
         }
+        return 0;
+
     }
 }

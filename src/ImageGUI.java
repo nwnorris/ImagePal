@@ -19,10 +19,8 @@ public class ImageGUI extends Application {
     private Scene rootScene;
     private Group rootGroup;
     private ImageView image;
-    private PalAnalysis analysis;
-    private PalAnalysis analysisHash;
-    private PaletteGUI pGUI;
-    private PaletteGUI pGUIHash;
+    private Palette analysis;
+    private HashPaletteGUI pGUI;
     private static final int MAX_WIDTH = 900;
     private static final int MAX_HEIGHT = 600;
 
@@ -42,40 +40,33 @@ public class ImageGUI extends Application {
 
     private HBox initMenuBar(Stage s){
         Button arrayAnalysisButton = new Button("Analysis [ArrayList]");
-        Button hashAnalysisButton = new Button("Analysis [HashSet]");
+        Button hashAnalysisButton = new Button("Analysis [HashMap]");
         Button importButton = new Button("Import Image");
         Button sortButton = new Button("Sort Palette");
 
         sortButton.setOnMouseClicked(event -> {
-            if(analysis != null){
-                analysis.sort();
-                pGUI.update();
-            }
-            if(analysisHash != null){
-                analysisHash.sort();
-                pGUIHash.update();
-            }
+           pGUI.update();
 
 
         });
 
         hashAnalysisButton.setOnMouseClicked(event -> {
-            analysisHash.analyze();
-            pGUIHash = new PaletteGUI(analysisHash);
-            pGUIHash.update();
+//            analysisHash.analyze();
+//            pGUIHash = new PaletteGUI(analysisHash);
+//            pGUIHash.update();
 
         });
 
         arrayAnalysisButton.setOnMouseClicked(event -> {
-            analysis.analyze();
-            pGUI = new PaletteGUI(analysis);
             pGUI.update();
         });
 
 
         importButton.setOnMouseClicked(event -> {
-            File newImage = new FileChooser().showOpenDialog(s);
+            //File newImage = new FileChooser().showOpenDialog(s);
             //File newImage = new File("C:\\Users\\nathannorris\\Pictures\\02.PNG");
+            File newImage = new File("/Users/nathannorris/Documents/_code/ImagePal/fruit.jpg");
+
             System.out.println(newImage.getPath());
             showImage(newImage);
         });
@@ -89,8 +80,9 @@ public class ImageGUI extends Application {
         try {
             newImage = new Image(new FileInputStream(i.getPath()));
             image.setImage(newImage);
-            analysis = new PalAnalysis(image, PalAnalysis.ANALYSIS_ARRAY_LIST);
-            analysisHash = new PalAnalysis(image, PalAnalysis.ANALYSIS_HASH_SET);
+            analysis = new HashPalette(image.getImage());
+            pGUI = new HashPaletteGUI(analysis);
+
             if(newImage.getWidth() <= MAX_WIDTH){
                 image.setFitWidth(newImage.getWidth());
             } else {
