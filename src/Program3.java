@@ -14,7 +14,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 
-public class ImageGUI extends Application {
+public class Program3 extends Application {
 
     private Scene rootScene;
     private Group rootGroup;
