@@ -31,16 +31,19 @@ public class ArrayPaletteGUI extends Application implements PaletteGUI {
     }
 
     public void start(Stage stage){
-        main = new BorderPane();
+        BorderPane main = new BorderPane();
         main.setPrefSize(prefWidth, prefHeight);
         update();
-        scrollPane = new ScrollPane();
-        image = new ImageView(drawImage);
+
+        ScrollPane scrollPane = new ScrollPane();
+
+        ImageView image = new ImageView(drawImage);
         scrollPane.setVmax(prefHeight);
         scrollPane.setContent(image);
         main.setCenter(scrollPane);
-        rootGroup = new Group(main);
-        rootScene = new Scene(rootGroup);
+
+        Group rootGroup = new Group(main);
+        Scene rootScene = new Scene(rootGroup);
         stage.setScene(rootScene);
         this.stage = stage;
     }
@@ -50,7 +53,7 @@ public class ArrayPaletteGUI extends Application implements PaletteGUI {
     }
 
     public void update(){
-        drawPalette(pal.getColors());
+        drawImage = drawPalette(pal.getColors());
     }
 
     private WritableImage drawPalette(ArrayList<PaletteColor> colors){

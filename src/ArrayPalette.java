@@ -31,7 +31,6 @@ public class ArrayPalette implements Palette {
             double h = image.getHeight();
             double w = image.getWidth();
             for(int i = 0; i < h;i++){
-                System.out.println(i);
                 for(int j = 0; j < w; j++){
                         addColor(pixelReader.getColor(j,i));
                 }
