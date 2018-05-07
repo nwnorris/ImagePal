@@ -20,58 +20,71 @@ public class ImageGUI extends Application {
     private Group rootGroup;
     private ImageView image;
     private Palette analysis;
-    private HashPaletteGUI pGUI;
+    private PaletteGUI pGUI;
+    private boolean imageAnalysis;
+    private boolean hasImage;
     private static final int MAX_WIDTH = 900;
     private static final int MAX_HEIGHT = 600;
 
     public void start(Stage s){
-
-        BorderPane border = new BorderPane();
-        border.setPrefSize(MAX_WIDTH, MAX_HEIGHT);
         image = new ImageView();
+        BorderPane border = new BorderPane();
+        imageAnalysis = false;
+        hasImage = false;
+
+        border.setPrefSize(MAX_WIDTH, MAX_HEIGHT);
         border.setCenter(image);
         border.setTop(initMenuBar(s));
+
         rootGroup = new Group(border);
         rootScene = new Scene(rootGroup);
+
         s.setScene(rootScene);
         s.show();
-
     }
 
     private HBox initMenuBar(Stage s){
         Button arrayAnalysisButton = new Button("Analysis [ArrayList]");
         Button hashAnalysisButton = new Button("Analysis [HashMap]");
         Button importButton = new Button("Import Image");
-        Button sortButton = new Button("Sort Palette");
+        Button paletteButton = new Button("Show Palette");
 
-        sortButton.setOnMouseClicked(event -> {
-           pGUI.update();
-
-
+        paletteButton.setDisable(!imageAnalysis);
+        paletteButton.setOnMouseClicked(event -> {
+            pGUI.show();
         });
 
+        hashAnalysisButton.setDisable(!hasImage);
         hashAnalysisButton.setOnMouseClicked(event -> {
-//            analysisHash.analyze();
-//            pGUIHash = new PaletteGUI(analysisHash);
-//            pGUIHash.update();
-
+            analysis = new HashPalette(image.getImage());
+            pGUI = new HashPaletteGUI(analysis);
+            imageAnalysis = true;
+            paletteButton.setDisable(!imageAnalysis);
         });
 
+        arrayAnalysisButton.setDisable(!imageAnalysis);
         arrayAnalysisButton.setOnMouseClicked(event -> {
+            analysis = new ArrayPalette(image.getImage());
+            pGUI = new ArrayPaletteGUI(analysis);
+            imageAnalysis = true;
+            paletteButton.setDisable(!imageAnalysis);
             pGUI.update();
         });
 
 
         importButton.setOnMouseClicked(event -> {
-            //File newImage = new FileChooser().showOpenDialog(s);
+            File newImage = new FileChooser().showOpenDialog(s);
             //File newImage = new File("C:\\Users\\nathannorris\\Pictures\\02.PNG");
-            File newImage = new File("/Users/nathannorris/Documents/_code/ImagePal/fruit.jpg");
-
+            //File newImage = new File("/Users/nathannorris/Documents/_code/ImagePal/fruit.jpg");
             System.out.println(newImage.getPath());
             showImage(newImage);
+            if(hasImage){
+                hashAnalysisButton.setDisable(!hasImage);
+                arrayAnalysisButton.setDisable(!hasImage);
+            }
         });
 
-        HBox menuBar = new HBox(arrayAnalysisButton, hashAnalysisButton, importButton,sortButton);
+        HBox menuBar = new HBox(arrayAnalysisButton, hashAnalysisButton, importButton,paletteButton);
         return menuBar;
     }
 
@@ -80,8 +93,6 @@ public class ImageGUI extends Application {
         try {
             newImage = new Image(new FileInputStream(i.getPath()));
             image.setImage(newImage);
-            analysis = new HashPalette(image.getImage());
-            pGUI = new HashPaletteGUI(analysis);
 
             if(newImage.getWidth() <= MAX_WIDTH){
                 image.setFitWidth(newImage.getWidth());
@@ -90,10 +101,10 @@ public class ImageGUI extends Application {
             }
 
             image.setPreserveRatio(true);
+            hasImage = true;
         } catch (FileNotFoundException e){
             e.printStackTrace();
         }
-
     }
 
 }

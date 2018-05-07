@@ -5,7 +5,7 @@ import javafx.scene.paint.Color;
 import java.util.ArrayList;
 import java.util.stream.Stream;
 
-public class SequentialPalette implements Palette {
+public class ArrayPalette implements Palette {
 
     private int dupe;
     private double width;
@@ -14,11 +14,12 @@ public class SequentialPalette implements Palette {
     private ArrayList<PaletteColor> contents;
     private Image image;
 
-    public SequentialPalette(Image i){
+    public ArrayPalette(Image i){
         image = i;
         width = i.getWidth();
         height = i.getHeight();
         contents = new ArrayList<>();
+        findColors();
     }
 
     public void findColors(){
@@ -43,10 +44,6 @@ public class SequentialPalette implements Palette {
 
     public ArrayList<PaletteColor> getColors(){
         return contents;
-    }
-
-    public void consolidate(){
-
     }
 
     public int getColorCount(){

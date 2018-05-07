@@ -32,7 +32,6 @@ public class HashPalette implements Palette {
             double h = image.getHeight();
             double w = image.getWidth();
             for(int i = 0; i < h;i++){
-                System.out.println(i);
                 for(int j = 0; j < w; j++){
                     addColor(pixelReader.getColor(j,i));
                 }
@@ -74,11 +73,7 @@ public class HashPalette implements Palette {
     }
 
     public boolean hasColor(Color c){
-        double margin = 10/255;
-        Color marginUp = new Color(c.getRed() +  margin, c.getGreen() + margin, c.getBlue() + margin, 1);
-        Color marginDown = new Color(c.getRed() - margin, c.getGreen() - margin, c.getBlue() - margin, 1);
-
-        if(contents.get(marginUp) == null && contents.get(marginDown) == null && contents.get(c) == null ){
+        if(contents.get(c) == null && contents.get(new Color(c.getRed() + 1/255, c.getGreen() + 1/255, c.getBlue() + 1/255, c.getOpacity())) == null ){
             return false;
         }
 

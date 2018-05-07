@@ -11,6 +11,6 @@ public class PaletteColor {
     }
 
     public int hashCode(){
-        return (int) color.getBlue();
+        return color.hashCode();
     }
 }

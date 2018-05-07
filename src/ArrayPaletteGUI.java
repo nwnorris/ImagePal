@@ -6,39 +6,41 @@ import javafx.scene.image.ImageView;
 import javafx.scene.image.PixelWriter;
 import javafx.scene.image.WritableImage;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-import java.util.*;
+import java.util.ArrayList;
 
-public class HashPaletteGUI extends Application implements PaletteGUI{
 
-    private HashPalette pal;
+public class ArrayPaletteGUI extends Application implements PaletteGUI {
+
+    private ArrayPalette pal;
+    private Scene rootScene;
     private Stage stage;
+    private Group rootGroup;
+    private ImageView image;
+    private BorderPane main;
+    private ScrollPane scrollPane;
     private WritableImage drawImage;
     private static int prefWidth = 800;
     private static int prefHeight = 500;
     private static int PIXEL_SIZE_MODIFIER = 5;
 
-    public HashPaletteGUI(Palette p){
-        pal = (HashPalette) p;
+    public ArrayPaletteGUI(Palette p){
+        pal = (ArrayPalette) p;
         start(new Stage());
     }
 
     public void start(Stage stage){
-        BorderPane main = new BorderPane();
+        main = new BorderPane();
         main.setPrefSize(prefWidth, prefHeight);
         update();
-
-        ScrollPane scrollPane = new ScrollPane();
-
-        ImageView image = new ImageView(drawImage);
+        scrollPane = new ScrollPane();
+        image = new ImageView(drawImage);
         scrollPane.setVmax(prefHeight);
         scrollPane.setContent(image);
         main.setCenter(scrollPane);
-
-        Group rootGroup = new Group(main);
-        Scene rootScene = new Scene(rootGroup);
+        rootGroup = new Group(main);
+        rootScene = new Scene(rootGroup);
         stage.setScene(rootScene);
         this.stage = stage;
     }
@@ -48,18 +50,14 @@ public class HashPaletteGUI extends Application implements PaletteGUI{
     }
 
     public void update(){
-        HashMap<Color, PaletteColor> palette = pal.getContents();
-        drawImage = drawPalette(palette);
+        drawPalette(pal.getColors());
     }
 
-    private WritableImage drawPalette(HashMap<Color, PaletteColor> colors){
+    private WritableImage drawPalette(ArrayList<PaletteColor> colors){
         System.out.println(colors.size() + " colors to render.");
 
-        Set<Color> drawColors = colors.keySet();
-        ArrayList<Color> real = new ArrayList<>(drawColors);
-
         final int PIXELS_PER_ROW = prefWidth/PIXEL_SIZE_MODIFIER;
-        float rows = real.size()/PIXELS_PER_ROW;
+        float rows = colors.size()/PIXELS_PER_ROW;
         if(rows < 1) rows = 1;
         System.out.println(rows + " rows, " + PIXELS_PER_ROW + " pixels per row.");
 
@@ -75,16 +73,16 @@ public class HashPaletteGUI extends Application implements PaletteGUI{
                 for(int subPixCol = 0; subPixCol < PIXEL_SIZE_MODIFIER; subPixCol++){
                     for(int subPixRow = 0; subPixRow < PIXEL_SIZE_MODIFIER; subPixRow++){
                         if((j + subPixRow < prefWidth) && (i + subPixCol < rows)){
-                                writer.setColor(j + subPixRow, i + subPixCol, real.get((int) (i*PIXELS_PER_ROW) + j) );
-                         }
+                            writer.setColor(j + subPixRow, i + subPixCol, colors.get((int) (i*PIXELS_PER_ROW) + j).color );
+                        }
+
                     }
                 }
+
             }
         }
 
         return newImage;
 
     }
-
-
 }
