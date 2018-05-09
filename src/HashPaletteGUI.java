@@ -15,7 +15,8 @@ public class HashPaletteGUI extends Application implements PaletteGUI{
 
     private HashPalette pal;
     private Stage stage;
-    private WritableImage drawImage;
+    private ImageView image;
+    private WritableImage im;
     private static int prefWidth = 800;
     private static int prefHeight = 500;
     private static int PIXEL_SIZE_MODIFIER = 5;
@@ -28,11 +29,11 @@ public class HashPaletteGUI extends Application implements PaletteGUI{
     public void start(Stage stage){
         BorderPane main = new BorderPane();
         main.setPrefSize(prefWidth, prefHeight);
-        update();
 
         ScrollPane scrollPane = new ScrollPane();
 
-        ImageView image = new ImageView(drawImage);
+        image = new ImageView();
+        update();
         scrollPane.setVmax(prefHeight);
         scrollPane.setContent(image);
         main.setCenter(scrollPane);
@@ -49,42 +50,52 @@ public class HashPaletteGUI extends Application implements PaletteGUI{
 
     public void update(){
         HashMap<Color, PaletteColor> palette = pal.getContents();
-        drawImage = drawPalette(palette);
+        image.setImage(drawPalette2(palette));
     }
 
-    private WritableImage drawPalette(HashMap<Color, PaletteColor> colors){
-        System.out.println(colors.size() + " colors to render.");
+    public void drawMostCommon(){
+         image.setImage(drawPalette2(pal.getTop265()));
+    }
 
-        Set<Color> drawColors = colors.keySet();
-        ArrayList<Color> real = new ArrayList<>(drawColors);
-
-        final int PIXELS_PER_ROW = prefWidth/PIXEL_SIZE_MODIFIER;
-        float rows = real.size()/PIXELS_PER_ROW;
-        if(rows < 1) rows = 1;
-        System.out.println(rows + " rows, " + PIXELS_PER_ROW + " pixels per row.");
-
-        WritableImage newImage = new WritableImage((int) prefWidth, (int) rows);
-        PixelWriter writer = newImage.getPixelWriter();
-
-        //Row iterator
-        for(int i = 0; i <= rows-PIXEL_SIZE_MODIFIER; i+=PIXEL_SIZE_MODIFIER){
-            //Column iterator
-            for(int j  = 0; j <= prefWidth-PIXEL_SIZE_MODIFIER; j+=PIXEL_SIZE_MODIFIER){
-
-                //Subpixel iterators
-                for(int subPixCol = 0; subPixCol < PIXEL_SIZE_MODIFIER; subPixCol++){
-                    for(int subPixRow = 0; subPixRow < PIXEL_SIZE_MODIFIER; subPixRow++){
-                        if((j + subPixRow < prefWidth) && (i + subPixCol < rows)){
-                                writer.setColor(j + subPixRow, i + subPixCol, real.get((int) (i*PIXELS_PER_ROW) + j) );
-                         }
-                    }
-                }
-            }
+    private WritableImage drawPalette2(HashMap<Color, PaletteColor> colors){
+        int pixelSize, modPixelsPerRow;
+        if(colors.size() < prefWidth){
+            pixelSize = prefWidth/((int) Math.ceil(Math.sqrt(colors.size())));
+        } else {
+            pixelSize = PIXEL_SIZE_MODIFIER;
         }
 
-        return newImage;
+        ArrayList<Color> colorsToRender = new ArrayList<>(colors.keySet());
+        modPixelsPerRow = colors.size()/(prefWidth/pixelSize);
+        int modPixelRows = (int) Math.ceil(colors.size()/modPixelsPerRow);
 
+        System.out.println("Creating image: " + prefWidth + "x" + modPixelRows*pixelSize);
+        WritableImage drawnImage = new WritableImage(prefWidth, modPixelRows*pixelSize);
+        PixelWriter writer = drawnImage.getPixelWriter();
+
+        System.out.println(drawnImage.getWidth() + "x" + drawnImage.getHeight());
+
+        for(int row = 0; row < modPixelRows; row++){
+            for(int col = 0; col < modPixelsPerRow; col++){
+                int rowIndex = row*pixelSize;
+                int colIndex = col*pixelSize;
+                Color pixelColor = colorsToRender.get((row * modPixelsPerRow) + col);
+                if(rowIndex + pixelSize < drawnImage.getHeight() && colIndex + pixelSize < drawnImage.getWidth()){
+                    drawModPixel(writer, colIndex, rowIndex, pixelSize, pixelColor);
+                }
+
+            }
+        }
+        return drawnImage;
     }
 
+    private void drawModPixel(PixelWriter image, int startX, int startY, int pixelSize, Color c){
+        //System.out.println("Drawing pixel at " + startX + "," + startY + "[" + pixelSize + "]");
+        for(int i = 0; i < pixelSize; i++){
+            for(int j = 0; j < pixelSize; j++){
+                image.setColor(startX + j, startY + i, c);
+            }
+        }
+    }
 
 }

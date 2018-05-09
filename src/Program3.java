@@ -19,22 +19,25 @@ public class Program3 extends Application {
     private Scene rootScene;
     private Group rootGroup;
     private ImageView image;
+    private Text status;
     private Palette analysis;
     private PaletteGUI pGUI;
     private boolean imageAnalysis;
     private boolean hasImage;
+    private boolean showingCommons;
     private static final int MAX_WIDTH = 900;
     private static final int MAX_HEIGHT = 600;
 
     public void start(Stage s){
         image = new ImageView();
         BorderPane border = new BorderPane();
-        imageAnalysis = false;
-        hasImage = false;
+        status = new Text("No image loaded.");
+        showingCommons = hasImage = imageAnalysis = false;
 
         border.setPrefSize(MAX_WIDTH, MAX_HEIGHT);
         border.setCenter(image);
         border.setTop(initMenuBar(s));
+        border.setBottom(status);
 
         rootGroup = new Group(border);
         rootScene = new Scene(rootGroup);
@@ -48,34 +51,53 @@ public class Program3 extends Application {
         Button hashAnalysisButton = new Button("Analysis [HashMap]");
         Button importButton = new Button("Import Image");
         Button paletteButton = new Button("Show Palette");
+        Button commonButton = new Button("Show commons");
 
+        //Palette Button
         paletteButton.setDisable(!imageAnalysis);
         paletteButton.setOnMouseClicked(event -> {
             pGUI.show();
         });
 
+        //Common button
+        commonButton.setOnMouseClicked(event -> {
+            if(!showingCommons){
+                if(pGUI instanceof HashPaletteGUI){
+                    ((HashPaletteGUI) pGUI).drawMostCommon();
+                    showingCommons = true;
+                }
+            } else {
+                pGUI.update();
+                showingCommons = false;
+            }
+
+        });
+
+        //Hash analysis button
         hashAnalysisButton.setDisable(!hasImage);
         hashAnalysisButton.setOnMouseClicked(event -> {
             analysis = new HashPalette(image.getImage());
             pGUI = new HashPaletteGUI(analysis);
             imageAnalysis = true;
             paletteButton.setDisable(!imageAnalysis);
+            updateStatus(getStatus() + " [" + analysis.getColorCount() + " Colors]");
         });
 
+        //Array analysis button
         arrayAnalysisButton.setDisable(!imageAnalysis);
         arrayAnalysisButton.setOnMouseClicked(event -> {
             analysis = new ArrayPalette(image.getImage());
             pGUI = new ArrayPaletteGUI(analysis);
             imageAnalysis = true;
             paletteButton.setDisable(!imageAnalysis);
-            pGUI.update();
+            updateStatus(getStatus() + " [" + analysis.getColorCount() + " Colors]");
         });
 
-
+        //Import button
         importButton.setOnMouseClicked(event -> {
-            File newImage = new FileChooser().showOpenDialog(s);
+            //File newImage = new FileChooser().showOpenDialog(s);
             //File newImage = new File("C:\\Users\\nathannorris\\Pictures\\02.PNG");
-            //File newImage = new File("/Users/nathannorris/Documents/_code/ImagePal/fruit.jpg");
+            File newImage = new File("/Users/nathannorris/Documents/_code/ImagePal/fruit.jpg");
             System.out.println(newImage.getPath());
             showImage(newImage);
             if(hasImage){
@@ -84,8 +106,16 @@ public class Program3 extends Application {
             }
         });
 
-        HBox menuBar = new HBox(arrayAnalysisButton, hashAnalysisButton, importButton,paletteButton);
+        HBox menuBar = new HBox(arrayAnalysisButton, hashAnalysisButton, importButton,paletteButton, commonButton);
         return menuBar;
+    }
+
+    public void updateStatus(String s){
+        status.setText(s);
+    }
+
+    public String getStatus(){
+        return status.getText();
     }
 
     private void showImage(File i){
@@ -102,6 +132,7 @@ public class Program3 extends Application {
 
             image.setPreserveRatio(true);
             hasImage = true;
+            updateStatus(newImage.getWidth() + "x" + newImage.getHeight());
         } catch (FileNotFoundException e){
             e.printStackTrace();
         }

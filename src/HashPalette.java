@@ -11,6 +11,7 @@ public class HashPalette implements Palette {
     private int dupe;
     private double width;
     private double height;
+    private int average;
 
     private HashMap<Color, PaletteColor> contents;
     private Image image;
@@ -42,13 +43,49 @@ public class HashPalette implements Palette {
         }
     }
 
+    private int averageCount(){
+        average = 0;
+        contents.forEach((c, p) -> {
+            addToSum(p.count);
+        });
+        average = average/contents.size();
+        return average;
+    }
+
+    private void addToSum(int i){
+        average += i;
+    }
+
+    public HashMap<Color, PaletteColor> getTop265(){
+        HashMap<Color, PaletteColor> colors = contents;
+        HashMap<Color, PaletteColor> common = new HashMap<>();
+        PaletteColor max = getMax(colors, colors.size());
+        for(int i = 0; i < 256; i++){
+            if(i >= colors.size()){
+                common.put(Color.BLACK, new PaletteColor(Color.BLACK));
+            } else {
+                common.put(max.color, max);
+                colors.remove(max.color);
+                max = getMax(colors, max.count);
+            }
+        }
+        System.out.println(common.size() + " commons.");
+        return common;
+    }
+
+    public PaletteColor getMax(HashMap<Color, PaletteColor> map, int ceil){
+        int max = 0;
+        for(PaletteColor p : map.values()){
+            if(p.count > max && p.count <= ceil){
+                return p;
+            }
+        }
+        return new PaletteColor(Color.GREEN);
+    }
+
     public ArrayList<PaletteColor> getColors(){
         Collection<PaletteColor> colors = contents.values();
         return new ArrayList<PaletteColor>(colors);
-    }
-
-    public void sort(){
-
     }
 
     public int getColorCount(){
