@@ -118,8 +118,14 @@ public class HashPalette implements Palette {
             PaletteColor p = contents.get(c);
             Color randColor = colors.get(random.nextInt(colors.size()));
             if(p.similar(contents.get(randColor))){
-                p.newColor = randColor;
+                double avR = (randColor.getRed() + p.color.getRed())/2;
+                double avG = (randColor.getGreen() + p.color.getGreen())/2;
+                double avB = (randColor.getBlue() + p.color.getBlue())/2;
+                Color newColor = new Color(avR, avG, avB, p.color.getOpacity());
+                p.newColor = newColor;
+                contents.get(randColor).color = newColor;
                 p.flag = true;
+            } else {
             }
         }
 

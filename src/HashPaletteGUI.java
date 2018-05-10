@@ -50,11 +50,11 @@ public class HashPaletteGUI extends Application implements PaletteGUI{
 
     public void update(){
         HashMap<Color, PaletteColor> palette = pal.getContents();
-        image.setImage(drawPalette2(palette));
+        image.setImage(drawPalette(palette));
     }
 
     public void drawMostCommon(){
-         image.setImage(drawPalette2(pal.getTop265()));
+         image.setImage(drawPalette(pal.getTop265()));
     }
 
     private ArrayList<Color> removeFlags(ArrayList<Color> toRemove, HashMap<Color, PaletteColor> colors){
@@ -68,11 +68,12 @@ public class HashPaletteGUI extends Application implements PaletteGUI{
         return new ArrayList<Color>(colors.keySet());
     }
 
-    private WritableImage drawPalette2(HashMap<Color, PaletteColor> colors){
+    private WritableImage drawPalette(HashMap<Color, PaletteColor> colors){
         int pixelSize, modPixelsPerRow;
         ArrayList<Color> colorsToRender = new ArrayList<>(colors.keySet());
         colorsToRender = removeFlags(colorsToRender, colors);
 
+        System.out.println("Rendering " + colorsToRender.size() + " colors.");
         if(colorsToRender.size() < prefWidth){
             pixelSize = prefWidth/((int) Math.ceil(Math.sqrt(colorsToRender.size())));
         } else {
@@ -80,10 +81,11 @@ public class HashPaletteGUI extends Application implements PaletteGUI{
         }
 
 
-        modPixelsPerRow = colorsToRender.size()/(prefWidth/pixelSize);
+        modPixelsPerRow = prefWidth/pixelSize;
+        System.out.println(modPixelsPerRow + " mod pixels per row.");
         int modPixelRows = (int) Math.ceil(colorsToRender.size()/modPixelsPerRow);
 
-        System.out.println("Creating image: " + prefWidth + "x" + modPixelRows*pixelSize);
+//        System.out.println("Creating image: " + prefWidth + "x" + modPixelRows*pixelSize);
         WritableImage drawnImage = new WritableImage(prefWidth, modPixelRows*pixelSize);
         PixelWriter writer = drawnImage.getPixelWriter();
 

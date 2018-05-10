@@ -4,6 +4,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
@@ -52,13 +53,20 @@ public class Program3 extends Application {
         Button importButton = new Button("Import Image");
         Button paletteButton = new Button("Show Palette");
         Button commonButton = new Button("Show Top 256");
-        Button reduceButton = new Button("Reduce");
+        Button reduceButton = new Button("Single Reduce");
+        Button bulkReduceButton = new Button("Reduce to 256");
+
+        //bulkReduceButton
+        bulkReduceButton.setOnMouseClicked(event -> {
+            while(analysis.getColorCount() > 256){
+                //performReduction();
+                reduceButton.fire();
+            }
+        });
 
         //Reduce button
         reduceButton.setOnMouseClicked(event -> {
-                analysis.reduce();
-                updateStatus(" [" + analysis.countReductions() + " reduced colors]");
-                pGUI.update();
+                performReduction();
         });
 
         //Palette Button
@@ -114,7 +122,7 @@ public class Program3 extends Application {
             }
         });
 
-        HBox menuBar = new HBox(arrayAnalysisButton, hashAnalysisButton, importButton,paletteButton, commonButton, reduceButton);
+        HBox menuBar = new HBox(arrayAnalysisButton, hashAnalysisButton, importButton,paletteButton, commonButton, reduceButton, bulkReduceButton);
         return menuBar;
     }
 
@@ -124,6 +132,12 @@ public class Program3 extends Application {
 
     public String getStatus(){
         return status.getText();
+    }
+
+    private void performReduction(){
+        analysis.reduce();
+        updateStatus("[" + analysis.getColorCount() + " colors] [" + analysis.countReductions() + " reduced colors]");
+        pGUI.update();
     }
 
     private void showImage(File i){
