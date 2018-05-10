@@ -22,6 +22,14 @@ public class ArrayPalette implements Palette {
         findColors();
     }
 
+    public void reduce(){
+
+    }
+
+    public int countReductions(){
+        return 0;
+    }
+
     public void findColors(){
         System.out.println("Analyzing colors.");
         dupe = 0;

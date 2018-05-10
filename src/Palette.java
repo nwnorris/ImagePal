@@ -12,4 +12,6 @@ public interface Palette {
     ArrayList<PaletteColor> getColors();
     double getWidth();
     double getHeight();
+    int countReductions();
+    void reduce();
 }

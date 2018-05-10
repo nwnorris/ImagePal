@@ -51,7 +51,15 @@ public class Program3 extends Application {
         Button hashAnalysisButton = new Button("Analysis [HashMap]");
         Button importButton = new Button("Import Image");
         Button paletteButton = new Button("Show Palette");
-        Button commonButton = new Button("Show commons");
+        Button commonButton = new Button("Show Top 256");
+        Button reduceButton = new Button("Reduce");
+
+        //Reduce button
+        reduceButton.setOnMouseClicked(event -> {
+                analysis.reduce();
+                updateStatus(" [" + analysis.countReductions() + " reduced colors]");
+                pGUI.update();
+        });
 
         //Palette Button
         paletteButton.setDisable(!imageAnalysis);
@@ -106,7 +114,7 @@ public class Program3 extends Application {
             }
         });
 
-        HBox menuBar = new HBox(arrayAnalysisButton, hashAnalysisButton, importButton,paletteButton, commonButton);
+        HBox menuBar = new HBox(arrayAnalysisButton, hashAnalysisButton, importButton,paletteButton, commonButton, reduceButton);
         return menuBar;
     }
 

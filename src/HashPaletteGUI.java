@@ -57,30 +57,43 @@ public class HashPaletteGUI extends Application implements PaletteGUI{
          image.setImage(drawPalette2(pal.getTop265()));
     }
 
+    private ArrayList<Color> removeFlags(ArrayList<Color> toRemove, HashMap<Color, PaletteColor> colors){
+        ArrayList<Color> remove = new ArrayList<>();
+        for(Color c: toRemove){
+            if(colors.get(c).flag) remove.add(c);
+        }
+        for(Color c: remove){
+            colors.remove(c);
+        }
+        return new ArrayList<Color>(colors.keySet());
+    }
+
     private WritableImage drawPalette2(HashMap<Color, PaletteColor> colors){
         int pixelSize, modPixelsPerRow;
-        if(colors.size() < prefWidth){
-            pixelSize = prefWidth/((int) Math.ceil(Math.sqrt(colors.size())));
+        ArrayList<Color> colorsToRender = new ArrayList<>(colors.keySet());
+        colorsToRender = removeFlags(colorsToRender, colors);
+
+        if(colorsToRender.size() < prefWidth){
+            pixelSize = prefWidth/((int) Math.ceil(Math.sqrt(colorsToRender.size())));
         } else {
             pixelSize = PIXEL_SIZE_MODIFIER;
         }
 
-        ArrayList<Color> colorsToRender = new ArrayList<>(colors.keySet());
-        modPixelsPerRow = colors.size()/(prefWidth/pixelSize);
-        int modPixelRows = (int) Math.ceil(colors.size()/modPixelsPerRow);
+
+        modPixelsPerRow = colorsToRender.size()/(prefWidth/pixelSize);
+        int modPixelRows = (int) Math.ceil(colorsToRender.size()/modPixelsPerRow);
 
         System.out.println("Creating image: " + prefWidth + "x" + modPixelRows*pixelSize);
         WritableImage drawnImage = new WritableImage(prefWidth, modPixelRows*pixelSize);
         PixelWriter writer = drawnImage.getPixelWriter();
-
-        System.out.println(drawnImage.getWidth() + "x" + drawnImage.getHeight());
 
         for(int row = 0; row < modPixelRows; row++){
             for(int col = 0; col < modPixelsPerRow; col++){
                 int rowIndex = row*pixelSize;
                 int colIndex = col*pixelSize;
                 Color pixelColor = colorsToRender.get((row * modPixelsPerRow) + col);
-                if(rowIndex + pixelSize < drawnImage.getHeight() && colIndex + pixelSize < drawnImage.getWidth()){
+
+                if(rowIndex + pixelSize < drawnImage.getHeight() && colIndex + pixelSize < drawnImage.getWidth() && !colors.get(pixelColor).flag){
                     drawModPixel(writer, colIndex, rowIndex, pixelSize, pixelColor);
                 }
 

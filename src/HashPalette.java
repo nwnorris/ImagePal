@@ -1,10 +1,7 @@
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.paint.Color;
-
-import java.awt.geom.Point2D;
 import java.util.*;
-import java.util.stream.Stream;
 
 public class HashPalette implements Palette {
 
@@ -15,9 +12,11 @@ public class HashPalette implements Palette {
 
     private HashMap<Color, PaletteColor> contents;
     private Image image;
+    private Random random;
 
     public HashPalette(Image i){
         image = i;
+        random = new Random();
         contents = new HashMap<>();
         width = image.getWidth();
         height = image.getHeight();
@@ -41,19 +40,6 @@ public class HashPalette implements Palette {
         } catch (IndexOutOfBoundsException e){
             e.printStackTrace();
         }
-    }
-
-    private int averageCount(){
-        average = 0;
-        contents.forEach((c, p) -> {
-            addToSum(p.count);
-        });
-        average = average/contents.size();
-        return average;
-    }
-
-    private void addToSum(int i){
-        average += i;
     }
 
     public HashMap<Color, PaletteColor> getTop265(){
@@ -115,6 +101,28 @@ public class HashPalette implements Palette {
         }
 
         return true;
+    }
+
+    public int countReductions(){
+        int count = 0;
+        ArrayList<PaletteColor> colors = new ArrayList<>(contents.values());
+        for(PaletteColor c : colors){
+            if(c.flag) count++;
+        }
+        return count;
+    }
+
+    public void reduce(){
+        ArrayList<Color> colors = new ArrayList<>(contents.keySet());
+        for(Color c: colors){
+            PaletteColor p = contents.get(c);
+            Color randColor = colors.get(random.nextInt(colors.size()));
+            if(p.similar(contents.get(randColor))){
+                p.newColor = randColor;
+                p.flag = true;
+            }
+        }
+
     }
 
     public void setImage(Image i){
