@@ -2,17 +2,20 @@ import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
+import javafx.scene.control.Slider;
+import javafx.scene.image.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.HashMap;
 
 
 public class Program3 extends Application {
@@ -21,24 +24,22 @@ public class Program3 extends Application {
     private Group rootGroup;
     private ImageView image;
     private Text status;
+    private Slider margin;
     private Palette analysis;
-    private PaletteGUI pGUI;
     private boolean imageAnalysis;
     private boolean hasImage;
-    private boolean showingCommons;
     private static final int MAX_WIDTH = 900;
     private static final int MAX_HEIGHT = 600;
 
     public void start(Stage s){
         image = new ImageView();
         BorderPane border = new BorderPane();
-        status = new Text("No image loaded.");
-        showingCommons = hasImage = imageAnalysis = false;
+        hasImage = imageAnalysis = false;
 
         border.setPrefSize(MAX_WIDTH, MAX_HEIGHT);
         border.setCenter(image);
         border.setTop(initMenuBar(s));
-        border.setBottom(status);
+        border.setBottom(bottomBar(s));
 
         rootGroup = new Group(border);
         rootScene = new Scene(rootGroup);
@@ -47,55 +48,40 @@ public class Program3 extends Application {
         s.show();
     }
 
+    private VBox bottomBar(Stage s){
+        status = new Text("No image loaded.");
+        margin = new Slider(1, 254, 10);
+        margin.setSnapToTicks(true);
+        margin.setBlockIncrement(5);
+
+        margin.setOnDragDone(event -> {
+            analysis.setMargin(margin.getValue());
+        });
+        VBox box = new VBox(status, margin);
+        return box;
+    }
+
     private HBox initMenuBar(Stage s){
         Button arrayAnalysisButton = new Button("Analysis [ArrayList]");
         Button hashAnalysisButton = new Button("Analysis [HashMap]");
         Button importButton = new Button("Import Image");
-        Button paletteButton = new Button("Show Palette");
-        Button commonButton = new Button("Show Top 256");
-        Button reduceButton = new Button("Single Reduce");
-        Button bulkReduceButton = new Button("Reduce to 256");
-
-        //bulkReduceButton
-        bulkReduceButton.setOnMouseClicked(event -> {
-            while(analysis.getColorCount() > 256){
-                //performReduction();
-                reduceButton.fire();
-            }
-        });
+        Button reduceSimButton = new Button("Reduce Colors [similarity]");
+        Button reduceCountButton = new Button("Reduce Colors [count]");
 
         //Reduce button
-        reduceButton.setOnMouseClicked(event -> {
-                performReduction();
+        reduceSimButton.setOnMouseClicked(event -> {
+                performReduction(0);
         });
 
-        //Palette Button
-        paletteButton.setDisable(!imageAnalysis);
-        paletteButton.setOnMouseClicked(event -> {
-            pGUI.show();
-        });
-
-        //Common button
-        commonButton.setOnMouseClicked(event -> {
-            if(!showingCommons){
-                if(pGUI instanceof HashPaletteGUI){
-                    ((HashPaletteGUI) pGUI).drawMostCommon();
-                    showingCommons = true;
-                }
-            } else {
-                pGUI.update();
-                showingCommons = false;
-            }
-
+        reduceCountButton.setOnMouseClicked(event -> {
+                performReduction(1);
         });
 
         //Hash analysis button
         hashAnalysisButton.setDisable(!hasImage);
         hashAnalysisButton.setOnMouseClicked(event -> {
             analysis = new HashPalette(image.getImage());
-            pGUI = new HashPaletteGUI(analysis);
             imageAnalysis = true;
-            paletteButton.setDisable(!imageAnalysis);
             updateStatus(getStatus() + " [" + analysis.getColorCount() + " Colors]");
         });
 
@@ -103,17 +89,15 @@ public class Program3 extends Application {
         arrayAnalysisButton.setDisable(!imageAnalysis);
         arrayAnalysisButton.setOnMouseClicked(event -> {
             analysis = new ArrayPalette(image.getImage());
-            pGUI = new ArrayPaletteGUI(analysis);
             imageAnalysis = true;
-            paletteButton.setDisable(!imageAnalysis);
             updateStatus(getStatus() + " [" + analysis.getColorCount() + " Colors]");
         });
 
         //Import button
         importButton.setOnMouseClicked(event -> {
-            //File newImage = new FileChooser().showOpenDialog(s);
+            File newImage = new FileChooser().showOpenDialog(s);
             //File newImage = new File("C:\\Users\\nathannorris\\Pictures\\02.PNG");
-            File newImage = new File("/Users/nathannorris/Documents/_code/ImagePal/fruit.jpg");
+            //File newImage = new File("/Users/nathannorris/Documents/_code/ImagePal/fruit.jpg");
             System.out.println(newImage.getPath());
             showImage(newImage);
             if(hasImage){
@@ -122,9 +106,15 @@ public class Program3 extends Application {
             }
         });
 
-        HBox menuBar = new HBox(arrayAnalysisButton, hashAnalysisButton, importButton,paletteButton, commonButton, reduceButton, bulkReduceButton);
+        HBox menuBar = new HBox(arrayAnalysisButton, hashAnalysisButton, importButton, reduceSimButton, reduceCountButton);
         return menuBar;
     }
+
+    public void updateImageFromPalette(){
+        image.setImage(((HashPalette) analysis).getOutput());
+    }
+
+
 
     public void updateStatus(String s){
         status.setText(s);
@@ -134,10 +124,15 @@ public class Program3 extends Application {
         return status.getText();
     }
 
-    private void performReduction(){
-        analysis.reduce();
-        updateStatus("[" + analysis.getColorCount() + " colors] [" + analysis.countReductions() + " reduced colors]");
-        pGUI.update();
+    private void performReduction(int method){
+
+        if(method == 0){
+            ((HashPalette) analysis).reduceBySimilarity();
+        } else if(method == 1){
+            ((HashPalette) analysis).reduceByCount();
+        }
+        //pGUI.update();
+        updateImageFromPalette();
     }
 
     private void showImage(File i){
@@ -145,6 +140,7 @@ public class Program3 extends Application {
         try {
             newImage = new Image(new FileInputStream(i.getPath()));
             image.setImage(newImage);
+            //analysis.setImage(newImage);
 
             if(newImage.getWidth() <= MAX_WIDTH){
                 image.setFitWidth(newImage.getWidth());

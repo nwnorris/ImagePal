@@ -22,9 +22,10 @@ public class ArrayPalette implements Palette {
         findColors();
     }
 
-    public void reduce(){
+    public void setMargin(double n){
 
     }
+
 
     public int countReductions(){
         return 0;
@@ -77,6 +78,14 @@ public class ArrayPalette implements Palette {
             }
         }
         return false;
+    }
+
+    public PaletteColor getPaletteColor(Color c) {
+        return null;
+    }
+
+    public PaletteColor getClosestColor(Color c) {
+        return null;
     }
 
     public void setImage(Image i){

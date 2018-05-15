@@ -6,23 +6,25 @@ public class PaletteColor {
     public int count;
     public Color newColor;
     public boolean flag;
-    double margin = 2/255;
+    double margin = 190/255.0;
 
-    public boolean similar(PaletteColor other){
-
-        double deltaR = other.color.getRed() - color.getRed();
-        double deltaG = other.color.getGreen() - color.getGreen();
-        double deltaB = other.color.getBlue() - color.getBlue();
-
-        if(deltaR <= margin && deltaG <= margin && deltaB <= margin){
-            return true;
-        }
-
-        return false;
+    /**
+     * Calculates euclidian distance between this.color and another color using RGB values as XYZ coordinates in 3D space.
+     * @param other The other color to compare distance to
+     * @return The euclidian distance between this.color and other.
+     */
+    public double getEuclidianDistance(Color other){
+        return
+                Math.sqrt(
+                Math.pow((color.getRed() - other.getRed()), 2) +
+                Math.pow((color.getGreen() - other.getGreen()), 2) +
+                Math.pow(color.getBlue() - other.getBlue(), 2)
+                );
     }
 
     public PaletteColor(Color c){
         color = c;
+        newColor = c;
         count = 1;
         flag = false;
     }
