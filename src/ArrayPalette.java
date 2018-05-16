@@ -1,75 +1,64 @@
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
 import javafx.scene.paint.Color;
-
 import java.util.ArrayList;
-import java.util.stream.Stream;
 
+/**
+ * An ArrayPalette holds PaletteColors and counts an image's colors using an iterative ArrayList technique. Yikes.
+ * Author: nwnorris
+ */
 public class ArrayPalette implements Palette {
 
-    private int dupe;
-    private double width;
-    private double height;
-
+    //Instance variables
     private ArrayList<PaletteColor> contents;
     private Image image;
 
+    /**
+     * Constructor, requires an Image input and automatically fires the color count method.
+     * @param i The Image to be analyzed.
+     */
     public ArrayPalette(Image i){
         image = i;
-        width = i.getWidth();
-        height = i.getHeight();
         contents = new ArrayList<>();
         findColors();
     }
 
-    public void setMargin(double n){
-
-    }
-
-
-    public int countReductions(){
-        return 0;
-    }
-
+    /**
+     * Counts all the unique colors in the Image. A very expensive method, order n^3. Jeepers creepers. Feel the pain!
+     */
     public void findColors(){
-        System.out.println("Analyzing colors.");
-        dupe = 0;
+        double h = image.getHeight();
+        double w = image.getWidth();
+        System.out.println("Analyzing " + (h * w) + " pixels.");
         PixelReader pixelReader = image.getPixelReader();
+        //Try-catch just in case.
         try{
-            System.out.println(image.getHeight() + "x" + image.getWidth());
-            double h = image.getHeight();
-            double w = image.getWidth();
             for(int i = 0; i < h;i++){
                 for(int j = 0; j < w; j++){
+                        //addColor method handles duplicate checking
                         addColor(pixelReader.getColor(j,i));
                 }
             }
-            System.out.println(dupe + " duplicates found.");
         } catch (IndexOutOfBoundsException e){
             e.printStackTrace();
         }
     }
 
-    public ArrayList<PaletteColor> getColors(){
-        return contents;
-    }
-
-    public int getColorCount(){
-        return contents.size();
-    }
-
-    public Image getImage(){
-        return image;
-    }
-
+    /**
+     * Adds a Color to the Palette if it isn't a duplicate.
+     * @param c The Color to be added.
+     */
     private void addColor(Color c){
         if(!hasColor(c)){
             contents.add(new PaletteColor(c));
-        } else {
-            dupe++;
         }
     }
 
+    /**
+     * Checks if a color is currently in the palette. Order n. No bueno.
+     * @param c The Color to be checked.
+     * @return True if the Color is already in the palette, false otherwise.
+     */
     public boolean hasColor(Color c){
         for(PaletteColor x : contents){
             if(x.color.equals(c)){
@@ -80,24 +69,27 @@ public class ArrayPalette implements Palette {
         return false;
     }
 
-    public PaletteColor getPaletteColor(Color c) {
-        return null;
+    /**
+     * Gets an ArrayList containing all the colors in this Palette.
+     * @return All the PaletteColors in this Palette.
+     */
+    public ArrayList<PaletteColor> getColors(){
+        return contents;
     }
 
-    public PaletteColor getClosestColor(Color c) {
-        return null;
+    /**
+     * Gets the number of unique colors in this Palette.
+     * @return The size of the contents array.
+     */
+    public int getColorCount(){
+        return contents.size();
     }
 
-    public void setImage(Image i){
-        image = i;
+    /**
+     * Gets the image used by this Palette for analysis.
+     * @return The stored Palette image.
+     */
+    public Image getImage(){
+        return image;
     }
-
-    public double getWidth(){
-        return width;
-    }
-
-    public double getHeight(){
-        return height;
-    }
-
 }
