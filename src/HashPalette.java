@@ -114,6 +114,27 @@ public class HashPalette implements Palette {
         comp.update();
     }
 
+    public void reduceToPalette(int palette){
+        switch(palette){
+            case 2:
+                comp.updatePalette(P3Palettes.toArray(P3Palettes.webSafeColors()));
+                break;
+            case 3:
+                comp.updatePalette(P3Palettes.toArray(P3Palettes.xtermColors()));
+                break;
+            case 4:
+                comp.updatePalette(P3Palettes.toArray(P3Palettes.grayscaleColors()));
+                break;
+            case 5:
+                comp.updatePalette(P3Palettes.toArray(P3Palettes.nesColors()));
+                break;
+            case 6:
+                comp.updatePalette(P3Palettes.toArray(P3Palettes.optimalColors()));
+                break;
+        }
+        comp.update();
+    }
+
     /**
      * Resets the image in the HashMap to the original image rather than the compressed version. Does the same for its compressor.
      */

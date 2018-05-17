@@ -60,7 +60,7 @@ public class ColorCompressor {
      * This effectively finalizes any color compression operations.
      * @param updatedColors The array of PaletteColors that will be mapped to the HashPalette.
      */
-    private void updatePalette(PaletteColor[] updatedColors){
+    public void updatePalette(PaletteColor[] updatedColors){
         System.out.println("Updating palette from " + updatedColors.length + " colors.");
         ArrayList<PaletteColor> paletteColors = palette.getColors();
         for(PaletteColor c: paletteColors){
